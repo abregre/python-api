@@ -84,11 +84,12 @@ WSGI_APPLICATION = 'pythonApi.wsgi.app'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'insta_profiles',
-        'USER': 'insta_profiles_user',
+        'NAME': 'insta_profiles_vcbb',
+        'USER': 'insta_profiles_vcbb_user',
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': os.environ.get('DB_HOST'),
         'PORT': '5432',

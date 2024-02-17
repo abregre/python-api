@@ -24,6 +24,7 @@ urlprefix = 'api'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path(urlprefix + '/profile/<str:username>/', views.ProfileData),
     path(urlprefix + '/profiles', views.UserProfileList),
     path(urlprefix + '/profiles/<int:id>/', views.UserProfileDetail),
 ]

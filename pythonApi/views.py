@@ -40,3 +40,9 @@ def UserProfileDetail(request, id):
     elif request.method == 'DELETE':
         profile.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def ProfileData(request, username):
+    serializer = UserProfileSerializer(UserProfile.objects.get(username=username))
+    print(serializer.data)
+    return Response(serializer.data)
