@@ -43,5 +43,37 @@ def UserProfileDetail(request, id):
 
 @api_view(['GET'])
 def ProfileData(request, username):
-    serializer = UserProfileSerializer(UserProfile.objects.get(username=username))
-    return JsonResponse(serializer.data, safe=False)
+    profile_pic_url = get_profile_pic_url(username)
+    return JsonResponse({'profile_pic_url': profile_pic_url})
+
+import requests
+from bs4 import BeautifulSoup
+
+def get_profile_pic_url(username):
+    url = f"https://www.instagram.com/{username}/"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            meta_tags = soup.find_all('meta', attrs={'property': 'og:image'})
+            if meta_tags:
+                profile_pic_url = meta_tags[0]['content']
+                return profile_pic_url
+            else:
+                print("Profile picture URL not found.")
+        else:
+            print(f"Failed to fetch profile. Status code: {response.status_code}")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+if __name__ == "__main__":
+    username = input("Enter the Instagram username: ")
+    profile_pic_url = get_profile_pic_url(username)
+    if profile_pic_url:
+        print(f"Profile picture URL: {profile_pic_url}")
+    else:
+        print("Failed to fetch profile picture URL.")
