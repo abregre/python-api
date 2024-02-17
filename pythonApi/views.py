@@ -10,7 +10,7 @@ def UserProfileList(request):
     if request.method == 'GET':
         profiles = UserProfile.objects.all()
         serializer = UserProfileSerializer(profiles, many=True)
-        return JsonResponse({'profiles': serializer.data})
+        return JsonResponse( serializer.data, safe=False)
 
     elif request.method == 'POST':
         serializer = UserProfileSerializer(data=request.data)
