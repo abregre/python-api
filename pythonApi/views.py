@@ -1,6 +1,6 @@
 from django.http import JsonResponse
-from .models import UserProfile
-from .serializers import UserProfileSerializer
+from .models import UserProfile, Media
+from .serializers import UserProfileSerializer, MediaSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -45,45 +45,79 @@ def UserProfileDetail(request, id):
 def ProfileData(request, username):
 
     [user_name, profile_pic_url, followers_count, follows_count, profile_url, media_count] = get_profile_info(username)
+    media = get_media(username)
+
     return JsonResponse({
         'profile_pic_url': profile_pic_url,
         'user_name': user_name,
         'followers_count': followers_count,
         'follows_count': follows_count,
         'profile_url': profile_url,
-        'media_count': media_count
+        'media_count': media_count,
+        'media': media
     })
 
-import requests
-from bs4 import BeautifulSoup
+import instaloader
+from datetime import datetime, timedelta
 
 def get_profile_info(username):
-    url = f"https://www.instagram.com/{username}/"
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-    }
+    loader = instaloader.Instaloader()
 
     try:
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
-            meta_tags = soup.find_all('meta', attrs={'property': 'og:title'})
-            if meta_tags:
-                user_name = meta_tags[0]['content']
-                user_name = user_name.split('(')[0].strip()  # Remove any additional text in the username
-                profile_pic_meta = soup.find('meta', attrs={'property': 'og:image'})
-                followers_count = soup.select_one('meta[property="og:description"][content]').get('content').split(' ')[0].replace(',','')
-                follows_count = soup.select_one('meta[property="og:description"][content]').get('content').split(' ')[2].replace(',','')
-                media_count = soup.select_one('meta[property="og:description"][content]').get('content').split(' ')[4].replace(',','')
-                if profile_pic_meta:
-                    profile_pic_url = profile_pic_meta['content']
-                    profile_url = url
-                    return [user_name, profile_pic_url, followers_count, follows_count, profile_url, media_count]
-                else:
-                    print("Profile picture URL not found.")
-            else:
-                print("Username not found.")
-        else:
-            print(f"Failed to fetch profile. Status code: {response.status_code}")
+        profile = instaloader.Profile.from_username(loader.context, username)
+
+        user_name = profile.full_name
+        profile_pic_url = profile.profile_pic_url
+        followers_count = profile.followers
+        follows_count = profile.followees
+        profile_url = f"https://www.instagram.com/{username}"
+        media_count = profile.mediacount
+
+        return [user_name, profile_pic_url, followers_count, follows_count, profile_url, media_count]
+
+    except instaloader.exceptions.ProfileNotExistsException:
+        print(f"Profile with username '{username}' does not exist.")
+        return []
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+        return []
+
+
+def get_media(username):
+    loader = instaloader.Instaloader()
+
+    try:
+        profile = instaloader.Profile.from_username(loader.context, username)
+
+        posts = profile.get_posts()
+
+        results = []
+        maxPosts = 10
+        for post in posts:
+            url = post.shortcode
+            thumbnail_url = post.url
+            caption = post.caption
+            likes = post.likes
+            comments = post.comments
+            date = post.date
+
+            results.append({
+                'url': url,
+                'thumbnail_url': thumbnail_url,
+                'caption': caption,
+                'likes': likes,
+                'comments': comments,
+                'date': date
+            })
+            maxPosts -= 1
+            if maxPosts == 0:
+                break
+
+        return results
+
+    except instaloader.exceptions.ProfileNotExistsException:
+        print(f"Profile with username '{username}' does not exist.")
+        return []
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return []
