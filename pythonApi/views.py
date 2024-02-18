@@ -44,13 +44,14 @@ def UserProfileDetail(request, id):
 @api_view(['GET'])
 def ProfileData(request, username):
 
-    [user_name, profile_pic_url, followers_count, follows_count, profile_url] = get_profile_info(username)
+    [user_name, profile_pic_url, followers_count, follows_count, profile_url, media_count] = get_profile_info(username)
     return JsonResponse({
         'profile_pic_url': profile_pic_url,
         'user_name': user_name,
         'followers_count': followers_count,
         'follows_count': follows_count,
-        'profile_url': profile_url
+        'profile_url': profile_url,
+        'media_count': media_count
     })
 
 import requests
@@ -73,10 +74,11 @@ def get_profile_info(username):
                 profile_pic_meta = soup.find('meta', attrs={'property': 'og:image'})
                 followers_count = soup.select_one('meta[property="og:description"][content]').get('content').split(' ')[0].replace(',','')
                 follows_count = soup.select_one('meta[property="og:description"][content]').get('content').split(' ')[2].replace(',','')
+                media_count = soup.select_one('meta[property="og:description"][content]').get('content').split(' ')[4].replace(',','')
                 if profile_pic_meta:
                     profile_pic_url = profile_pic_meta['content']
                     profile_url = url
-                    return [user_name, profile_pic_url, followers_count, follows_count, profile_url]
+                    return [user_name, profile_pic_url, followers_count, follows_count, profile_url, media_count]
                 else:
                     print("Profile picture URL not found.")
             else:
