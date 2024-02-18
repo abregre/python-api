@@ -12,6 +12,7 @@ idna==3.6
 instaloader==4.10.3
 packaging==23.2
 psycopg2==2.9.9
+psycopg2-binary==2.9.9
 python-dotenv==1.0.1
 pytz==2024.1
 requests==2.31.0
