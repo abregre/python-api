@@ -1,6 +1,6 @@
 from django.http import JsonResponse
-from .models import UserProfile
-from .serializers import UserProfileSerializer
+from .models import UserProfile, Request
+from .serializers import UserProfileSerializer, RequestSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -47,6 +47,10 @@ def ProfileData(request, username):
     user_name, biography, profile_pic_url, followers_count, follows_count, profile_url, media_count = get_profile_info(username)
     media = get_media(username)
 
+    serializer = RequestSerializer(data={'username': username})
+    if serializer.is_valid():
+        serializer.save()
+
     return JsonResponse({
         'profile_pic_url': profile_pic_url,
         'biography': biography,
@@ -76,7 +80,6 @@ def get_profile_info(username):
         profile_url = f"https://www.instagram.com/{username}"
         media_count = profile.mediacount
 
-        print(user_name, biography, profile_pic_url, followers_count, follows_count, profile_url, media_count)
 
         return user_name, biography, profile_pic_url, followers_count, follows_count, profile_url, media_count
 
@@ -126,3 +129,11 @@ def get_media(username):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return [None, None, None, None, None, None]
+
+
+@api_view(['GET'])
+def RequestList(request):
+    if request.method == 'GET':
+        requests = Request.objects.all()
+        serializer = RequestSerializer(requests, many=True)
+        return JsonResponse(serializer.data, safe=False)

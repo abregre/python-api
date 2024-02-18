@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 
 class UserProfile(models.Model):
     name= models.CharField(max_length=100, default='', blank=True, null=True)
@@ -20,3 +19,9 @@ class Media(models.Model):
 
     def __str__(self):
         return self.caption
+
+class Request(models.Model):
+    username = models.CharField(max_length=100)
+    requestTime = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.username

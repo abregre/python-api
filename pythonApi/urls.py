@@ -27,6 +27,7 @@ urlpatterns = [
     path(urlprefix + '/profile/<str:username>/', views.ProfileData),
     path(urlprefix + '/profiles', views.UserProfileList),
     path(urlprefix + '/profiles/<int:id>/', views.UserProfileDetail),
+    path(urlprefix + '/requests', views.RequestList),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
