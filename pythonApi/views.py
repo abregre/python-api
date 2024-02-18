@@ -43,13 +43,19 @@ def UserProfileDetail(request, id):
 
 @api_view(['GET'])
 def ProfileData(request, username):
-    profile_pic_url = get_profile_pic_url(username)
-    return JsonResponse({'profile_pic_url': profile_pic_url})
+    [user_name, profile_pic_url, followers_count, follows_count, profile_url] = get_profile_info(username)
+    return JsonResponse({
+        'profile_pic_url': profile_pic_url,
+        'user_name': user_name,
+        'followers_count': followers_count,
+        'follows_count': follows_count,
+        'profile_url': profile_url
+    })
 
 import requests
 from bs4 import BeautifulSoup
 
-def get_profile_pic_url(username):
+def get_profile_info(username):
     url = f"https://www.instagram.com/{username}/"
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
@@ -59,15 +65,22 @@ def get_profile_pic_url(username):
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            meta_tags = soup.find_all('meta', attrs={'property': 'og:image'})
+            meta_tags = soup.find_all('meta', attrs={'property': 'og:title'})
             if meta_tags:
-                profile_pic_url = meta_tags[0]['content']
-                return profile_pic_url
+                user_name = meta_tags[0]['content']
+                user_name = user_name.split('(')[0].strip()  # Remove any additional text in the username
+                profile_pic_meta = soup.find('meta', attrs={'property': 'og:image'})
+                followers_count = soup.select_one('meta[property="og:description"][content]').get('content').split(' ')[0].replace(',','')
+                follows_count = soup.select_one('meta[property="og:description"][content]').get('content').split(' ')[2].replace(',','')
+                if profile_pic_meta:
+                    profile_pic_url = profile_pic_meta['content']
+                    profile_url = url
+                    return user_name, profile_pic_url, followers_count, follows_count, profile_url
+                else:
+                    print("Profile picture URL not found.")
             else:
-                print("Profile picture URL not found.")
+                print("Username not found.")
         else:
             print(f"Failed to fetch profile. Status code: {response.status_code}")
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-
-
