@@ -70,10 +70,4 @@ def get_profile_pic_url(username):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
-if __name__ == "__main__":
-    username = input("Enter the Instagram username: ")
-    profile_pic_url = get_profile_pic_url(username)
-    if profile_pic_url:
-        print(f"Profile picture URL: {profile_pic_url}")
-    else:
-        print("Failed to fetch profile picture URL.")
+
