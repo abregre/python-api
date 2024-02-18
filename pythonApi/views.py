@@ -1,6 +1,6 @@
 from django.http import JsonResponse
-from .models import UserProfile, Media
-from .serializers import UserProfileSerializer, MediaSerializer
+from .models import UserProfile
+from .serializers import UserProfileSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -44,11 +44,12 @@ def UserProfileDetail(request, id):
 @api_view(['GET'])
 def ProfileData(request, username):
 
-    [user_name, profile_pic_url, followers_count, follows_count, profile_url, media_count] = get_profile_info(username)
+    user_name, biography, profile_pic_url, followers_count, follows_count, profile_url, media_count = get_profile_info(username)
     media = get_media(username)
 
     return JsonResponse({
         'profile_pic_url': profile_pic_url,
+        'biography': biography,
         'user_name': user_name,
         'followers_count': followers_count,
         'follows_count': follows_count,
@@ -61,26 +62,30 @@ import instaloader
 from datetime import datetime, timedelta
 
 def get_profile_info(username):
+
     loader = instaloader.Instaloader()
 
     try:
         profile = instaloader.Profile.from_username(loader.context, username)
 
         user_name = profile.full_name
+        biography = profile.biography
         profile_pic_url = profile.profile_pic_url
         followers_count = profile.followers
         follows_count = profile.followees
         profile_url = f"https://www.instagram.com/{username}"
         media_count = profile.mediacount
 
-        return [user_name, profile_pic_url, followers_count, follows_count, profile_url, media_count]
+        print(user_name, biography, profile_pic_url, followers_count, follows_count, profile_url, media_count)
+
+        return user_name, biography, profile_pic_url, followers_count, follows_count, profile_url, media_count
 
     except instaloader.exceptions.ProfileNotExistsException:
         print(f"Profile with username '{username}' does not exist.")
-        return []
+        return [None, None, None, None, None, None, None]
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return []
+        return [None, None, None, None, None, None, None]
 
 
 def get_media(username):
@@ -117,7 +122,7 @@ def get_media(username):
 
     except instaloader.exceptions.ProfileNotExistsException:
         print(f"Profile with username '{username}' does not exist.")
-        return []
+        return [None, None, None, None, None, None]
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return []
+        return [None, None, None, None, None, None]
