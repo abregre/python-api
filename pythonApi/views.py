@@ -43,6 +43,7 @@ def UserProfileDetail(request, id):
 
 @api_view(['GET'])
 def ProfileData(request, username):
+
     [user_name, profile_pic_url, followers_count, follows_count, profile_url] = get_profile_info(username)
     return JsonResponse({
         'profile_pic_url': profile_pic_url,
@@ -75,7 +76,7 @@ def get_profile_info(username):
                 if profile_pic_meta:
                     profile_pic_url = profile_pic_meta['content']
                     profile_url = url
-                    return user_name, profile_pic_url, followers_count, follows_count, profile_url
+                    return [user_name, profile_pic_url, followers_count, follows_count, profile_url]
                 else:
                     print("Profile picture URL not found.")
             else:
