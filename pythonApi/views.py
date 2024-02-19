@@ -5,6 +5,12 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+def api_root(request, format=None):
+    return JsonResponse({
+        'status': status.HTTP_200_OK,
+        'message': 'Welcome to the Instagram API'
+    })
+
 @api_view(['GET', 'POST', 'DELETE'])
 def UserProfileList(request):
     if request.method == 'GET':
