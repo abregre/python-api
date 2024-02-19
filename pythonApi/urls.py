@@ -27,7 +27,11 @@ urlpatterns = [
     path(urlprefix + '/profile/<str:username>/', views.ProfileData),
     path(urlprefix + '/profiles', views.UserProfileList),
     path(urlprefix + '/profiles/<int:id>/', views.UserProfileDetail),
+    path(urlprefix + '/profiles/delete', views.UserProfileList),
+    path(urlprefix + '/media', views.MediaList),
+    path(urlprefix + '/media/delete', views.MediaList),
     path(urlprefix + '/requests', views.RequestList),
+    path(urlprefix + '/requests/delete', views.RequestDetail),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
