@@ -94,6 +94,7 @@ def ProfileData(request, username):
                 'profile_pic_url': profile_pic_url,
                 'biography': biography,
                 'user_name': user_name,
+                'username': username,
                 'followers_count': followers_count,
                 'follows_count': follows_count,
                 'profile_url': profile_url,
