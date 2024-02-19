@@ -77,6 +77,7 @@ def ProfileData(request, username):
 
     try:
         dbRequest = Request.objects.filter(username=username, success=True).latest('request_time')
+
         if Request.objects.filter(username=username,success=True).count() > 1:
             Request.objects.filter(username=username, success=True).exclude(id=dbRequest.id).delete()
         elif Request.objects.filter(username=username,success=False):
@@ -85,7 +86,6 @@ def ProfileData(request, username):
         dbRequest = None
 
     if dbRequest:
-        print('is older than a day',dbRequest.request_time < (timezone.now() - timedelta(days=1)))
         if dbRequest.request_time > (timezone.now() - timedelta(days=1)):
             user_name, biography, profile_pic_url, followers_count, follows_count, profile_url, media_count = get_profile_info_db(username)
             media = get_media_db(username)
