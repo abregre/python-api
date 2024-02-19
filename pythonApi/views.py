@@ -106,7 +106,7 @@ def ProfileData(request, username):
         user_name, biography, profile_pic_url, followers_count, follows_count, profile_url, media_count = fetch_profile_info_ext(username)
         media = get_media_ext(username)
 
-        is_success = user_name is not None and biography is not None and profile_pic_url is not None and followers_count is not None and follows_count is not None and profile_url is not None and media_count is not None and media is not None
+        is_success = user_name is not None and biography is not None and profile_pic_url is not None and followers_count is not None and follows_count is not None and profile_url is not None and media_count is not None and len(media) > 0
 
         if not is_success:
             return JsonResponse({
